@@ -1,0 +1,28 @@
+#!/bin/bash
+
+howmuch=`grep -c . $1`
+
+declare -i counter=0
+
+testing(){
+fhn=`host $1 | awk '{print $5};' | sed '.o.'`
+if [[ $fhn == *".com" ]]
+then
+printf "filtering..."
+echo "$fhn" >> sites
+else 
+printf "No access."
+fi
+}
+
+while IFS= read -r url
+do
+		counter=$((counter+1))
+        testing "$url" &
+done < $1
+
+wait
+printf "Done."
+cat sites | sort | uniq > filterdup
+rm -rf sites
+mv filterdup sites
